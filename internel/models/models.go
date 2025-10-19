@@ -5,18 +5,24 @@ const (
 )
 
 type Request struct {
-	Request SimpleUtterance `json:"request"`
-	Version string `json:"version"`
+	Timezone string          `json:"timezone"`
+	Request  SimpleUtterance `json:"request"`
+	Session  Session         `json:"session"`
+	Version  string          `json:"version"`
 }
 
 type SimpleUtterance struct {
-	Type string `json:"type"`
+	Type    string `json:"type"`
 	Command string `json:"command"`
+}
+
+type Session struct {
+	New bool `json:"new"`
 }
 
 type Response struct {
 	Response ResponsePayload `json:"response"`
-	Version string `json:"version"`
+	Version  string          `json:"version"`
 }
 
 type ResponsePayload struct {
