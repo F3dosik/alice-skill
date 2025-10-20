@@ -7,14 +7,35 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
+	"github.com/F3dosik/alice-skill/internal/store"
+	"github.com/F3dosik/alice-skill/internal/store/mock"
 	"github.com/go-resty/resty/v2"
+	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestWebhook(t *testing.T) {
-	handler := http.HandlerFunc(webhook)
+	ctrl := gomock.NewController(t)
+	s := mock.NewMockMessageStore(ctrl)
+
+	messages := []store.Message{
+		{
+			Sender:  "411419e5-f5be-4cdb-83aa-2ca2b6648353",
+			Time:    time.Now(),
+			Payload: "Hello!",
+		},
+	}
+
+	s.EXPECT().
+		ListMessages(gomock.Any(), gomock.Any()).
+		Return(messages, nil)
+
+	appInstance := newApp(s)
+
+	handler := http.HandlerFunc(appInstance.webhook)
 	srv := httptest.NewServer(handler)
 	defer srv.Close()
 
@@ -90,7 +111,25 @@ func TestWebhook(t *testing.T) {
 }
 
 func TestGzipCompression(t *testing.T) {
-	handler := http.HandlerFunc(gzipMiddleware(webhook))
+	ctrl := gomock.NewController(t)
+	s := mock.NewMockMessageStore(ctrl)
+
+	messages := []store.Message{
+		{
+			Sender:  "411419e5-f5be-4cdb-83aa-2ca2b6648353",
+			Time:    time.Now(),
+			Payload: "Hello!",
+		},
+	}
+
+	s.EXPECT().
+	ListMessages(gomock.Any(), gomock.Any()).
+	Return(messages, nil).
+	Times(2)
+	
+	appInstance := newApp(s)
+
+	handler := http.HandlerFunc(gzipMiddleware(appInstance.webhook))
 
 	srv := httptest.NewServer(handler)
 	defer srv.Close()

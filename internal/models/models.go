@@ -17,7 +17,8 @@ type SimpleUtterance struct {
 }
 
 type Session struct {
-	New bool `json:"new"`
+	New  bool        `json:"new"`
+	User RequestUser `json:"user"`
 }
 
 type Response struct {
@@ -27,4 +28,8 @@ type Response struct {
 
 type ResponsePayload struct {
 	Text string `json:"text"`
+}
+
+type RequestUser struct {
+	UserID string `json:"user_id"`
 }

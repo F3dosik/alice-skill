@@ -2,7 +2,10 @@ module github.com/F3dosik/alice-skill
 
 go 1.24.4
 
-require github.com/stretchr/testify v1.11.1
+require (
+	github.com/golang/mock v1.6.0
+	github.com/stretchr/testify v1.11.1
+)
 
 require (
 	go.uber.org/multierr v1.10.0 // indirect
