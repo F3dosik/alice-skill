@@ -1,10 +1,13 @@
 package main
 
 import (
+	"database/sql"
 	"net/http"
 	"strings"
 
 	"github.com/F3dosik/alice-skill/internal/logger"
+	"github.com/F3dosik/alice-skill/internal/store/pg"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"go.uber.org/zap"
 )
 
@@ -58,9 +61,13 @@ func run() error {
 	if err := logger.Initialize(flagLogLevel); err != nil {
 		return err
 	}
+	conn, err := sql.Open("pgx", flagDatabaseURI)
+	if err != nil {
+		return err
+	}
 
 	// создаём экземпляр приложения, пока без внешней зависимости хранилища сообщений
-    appInstance := newApp(nil)
+	appInstance := newApp(pg.NewStore(conn))
 
 	logger.Log.Info("Running server", zap.String("address", flagRunAddr))
 	return http.ListenAndServe(flagRunAddr, logger.RequestLogger(gzipMiddleware(appInstance.webhook)))
